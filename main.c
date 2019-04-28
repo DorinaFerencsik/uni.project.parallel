@@ -8,7 +8,7 @@
 int main() {
     stopper st;
     startS(&st);
-    #define M 4056
+    #define M 1024
     #define N 1000000
 
     int randomNumbers[M];
@@ -23,25 +23,15 @@ int main() {
             randomNumbers[im++] = in + 1;
     }
 
-    assert(im == M);
-
-//    for (int i = 0; i<M; i++) {
-//        printf("%d\n",randomNumbers[i]);
-//    }
-//
-//    printf("szamharmasok \n");
-
 
     int harmasok = 0;
     int hasznosharmasok = 0;
     int i,j,k;
     #pragma omp parallel num_threads(2)
     {
-//        #pragma omp for lastprivate(i)
+        #pragma omp for lastprivate(j), lastprivate(k)
         for (i = 0; i < M; i++) {
-//            #pragma omp for lastprivate(j)
             for (j = i + 1; j < M; j++) {
-                #pragma omp for lastprivate(k)
                 for (k = j + 1; k < M; k++) {
                     int a = randomNumbers[i];
                     int b = randomNumbers[j];
@@ -49,14 +39,18 @@ int main() {
 
                     if ((a + b > c) && (a + c > b) && (b + c > a)) {
 //                        printf(" - %d, %d, %d   harmoszog lehet\n", a, b, c);
-
+#pragma omp critical
                         hasznosharmasok++;
                     }
+#pragma omp critical
                     harmasok++;
                 }
             }
         }
     }
+
+
+
     printf("harmasok: %d \n",harmasok);
     printf("hasznosharmasok: %d\n",hasznosharmasok);
 
